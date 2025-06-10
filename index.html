@@ -88,15 +88,20 @@
       -webkit-text-fill-color: transparent;
       animation: rainbow 3s linear infinite;
       font-weight: bolder;
-      border-radius: 0; /* 背景無いので丸くしない */
+      border-radius: 0;
       padding: 6px 8px;
       margin: 2px;
+      display: inline-block;
     }
 
     #summaryArea {
       margin-top: 20px;
       font-size: 18px;
-      white-space: pre-line;
+      white-space: normal;
+      text-align: left;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
     }
   </style>
 </head>
@@ -125,8 +130,13 @@
     // 重みは合計100%
     const weights = [30, 30, 15, 15, 6.9, 2.8, 0.24, 0.05, 0.01];
 
-    function getStarClass(item) {
-      const starCount = (item.match(/★/g) || []).length;
+    function getStarClass(itemOrStars) {
+      // itemOrStarsがitem全体の場合、★だけ抽出
+      let stars = itemOrStars;
+      if (!/^[★]+$/.test(itemOrStars)) {
+        stars = (itemOrStars.match(/★+/) || [''])[0];
+      }
+      const starCount = stars.length || 1;
       return 'star-' + starCount;
     }
 
@@ -146,11 +156,16 @@
       document.getElementById('btn100').disabled = state;
     }
 
+    let rolling = false; // ガチャ中判定
+
     function rollGacha(times) {
+      if (rolling) return; // 実行中は無視
+      rolling = true;
+
       const resultArea = document.getElementById('resultArea');
       const summaryArea = document.getElementById('summaryArea');
       resultArea.innerHTML = '';
-      summaryArea.textContent = '';
+      summaryArea.innerHTML = '';
       setButtonsDisabled(true);
 
       const results = [];
@@ -163,20 +178,24 @@
       let i = 0;
       function showNext() {
         if (i >= results.length) {
-          // 集計表示
-          let summary = "【ガチャ結果表】\n";
+          // 集計表示（色付きの星だけHTMLで表示）
+          summaryArea.innerHTML = '【結果集計】<br>';
           Object.entries(countByItem)
             .sort((a, b) => {
-              // ★の数で降順ソート
               const aStar = (a[0].match(/★/g) || []).length;
               const bStar = (b[0].match(/★/g) || []).length;
               return bStar - aStar;
             })
             .forEach(([item, count]) => {
-              summary += `${item} : ${count}個\n`;
+              const starPart = (item.match(/★+/) || [''])[0];
+              const namePart = item.replace(starPart, '').trim();
+
+              const starSpan = `<span class="item ${getStarClass(starPart)}">${starPart}</span>`;
+              summaryArea.innerHTML += `${starSpan} ${namePart} : ${count}個<br>`;
             });
-          summaryArea.textContent = summary;
+
           setButtonsDisabled(false);
+          rolling = false;
           return;
         }
 
@@ -188,6 +207,7 @@
 
         countByItem[item] = (countByItem[item] || 0) + 1;
 
+        // フェードイン＋拡大演出
         setTimeout(() => {
           span.classList.add('show');
         }, 10);
