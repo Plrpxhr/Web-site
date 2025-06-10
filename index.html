@@ -1,104 +1,134 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>ガチャシステム</title>
   <style>
     body {
       font-family: sans-serif;
       text-align: center;
       margin-top: 50px;
+      background-color: #f8f9fa;
+    }
+
+    h1 {
+      font-size: 36px;
+      margin-bottom: 20px;
     }
 
     button {
-      padding: 10px 20px;
-      margin: 5px;
-      font-size: 16px;
+      padding: 12px 24px;
+      margin: 10px;
+      font-size: 20px;
       cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      background-color: #007bff;
+      color: white;
+      transition: background-color 0.3s;
+    }
+
+    button:hover:enabled {
+      background-color: #0056b3;
+    }
+
+    button:disabled {
+      background-color: #999;
+      cursor: not-allowed;
     }
 
     .result {
-      margin-top: 20px;
-      font-size: 18px;
+      margin-top: 30px;
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 4px;
-      max-width: 900px;
+      max-width: 1200px;
       margin-left: auto;
       margin-right: auto;
     }
 
     .item {
-      padding: 4px 8px;
-      border-radius: 4px;
       margin: 2px;
+      padding: 6px 10px;
+      border-radius: 5px;
+      font-size: 16px;
       opacity: 0;
-      transform: scale(0.5) rotate(0deg);
-      animation: pop-in 0.3s ease-out forwards;
-    }
-
-    @keyframes pop-in {
-      0% {
-        opacity: 0;
-        transform: scale(0.5) rotate(20deg);
-      }
-      100% {
-        opacity: 1;
-        transform: scale(1) rotate(0deg);
-      }
-    }
-
-    .star1 { color: #555; background: #eee; }
-    .star2 { color: #1f8b4c; background: #d5f5e3; }
-    .star3 { color: #2980b9; background: #d6eaf8; }
-    .star4 { color: #8e44ad; background: #f5eef8; }
-    .star5 {
-      color: gold;
-      background: #fff5cc;
-      animation: glow 1s infinite alternate, jump 0.5s ease-in-out infinite alternate;
+      transform: scale(0.8);
+      transition: all 0.3s ease;
+      display: inline-block;
+      color: black;
       font-weight: bold;
-      border: 2px solid gold;
+      user-select: none;
     }
 
-    @keyframes glow {
-      0% { box-shadow: 0 0 5px gold; }
-      100% { box-shadow: 0 0 20px gold; }
+    .item.show {
+      opacity: 1;
+      transform: scale(1);
     }
 
-    @keyframes jump {
-      0% { transform: translateY(0); }
-      100% { transform: translateY(-5px); }
+    .star-1  { background-color: #ddd; }
+    .star-2  { background-color: #b0e0e6; }
+    .star-3  { background-color: #90ee90; }
+    .star-4  { background-color: #ffa500; color: white; }
+    .star-5  { background-color: #ff69b4; color: white; }
+    .star-6  { background-color: #ffd700; color: black; } /* 金色 */
+    /* 虹色アニメーション */
+    @keyframes rainbow {
+      0%, 100% { color: red; }
+      14% { color: orange; }
+      28% { color: yellow; }
+      42% { color: green; }
+      56% { color: blue; }
+      70% { color: indigo; }
+      84% { color: violet; }
+    }
+    .star-7 {
+      background: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: rainbow 3s linear infinite;
+      font-weight: bolder;
+      border-radius: 0; /* 背景無いので丸くしない */
+      padding: 6px 8px;
+      margin: 2px;
     }
 
-    .summary {
-      margin-top: 30px;
-      font-size: 20px;
+    #summaryArea {
+      margin-top: 20px;
+      font-size: 18px;
       white-space: pre-line;
     }
   </style>
 </head>
 <body>
   <h1>ガチャシステム</h1>
-  <button onclick="rollGacha(1)">単発</button>
-  <button onclick="rollGacha(10)">10連</button>
-  <button onclick="rollGacha(100)">100連</button>
+  <button id="btn1" onclick="rollGacha(1)">単発</button>
+  <button id="btn10" onclick="rollGacha(10)">10連</button>
+  <button id="btn100" onclick="rollGacha(100)">100連</button>
 
   <div class="result" id="resultArea"></div>
-  <div class="summary" id="summaryArea"></div>
+  <div id="summaryArea"></div>
 
   <script>
     const items = [
-      "★ 猫",
-      "★ 犬",
-      "★★ 牛",
-      "★★ 豚",
-      "★★★ 鳥",
-      "★★★★ 人間",
-      "★★★★★ アホ"
+      "★ 猫",        // 1つ星
+      "★ 犬",        // 1つ星
+      "★★ 牛",       // 2つ星
+      "★★ 豚",       // 2つ星
+      "★★★ 鳥",      // 3つ星
+      "★★★★ 人間",   // 4つ星
+      "★★★★★ 不死鳥",  // 5つ星
+      "★★★★★★ ドラゴン", // 6つ星
+      "★★★★★★★ 神"     // 7つ星
     ];
 
-    const weights = [30, 30, 15, 15, 7, 2.8, 0.2];
+    // 重みは合計100%
+    const weights = [30, 30, 15, 15, 6, 2.8, 0.24, 0.05, 0.01];
+
+    function getStarClass(item) {
+      const starCount = (item.match(/★/g) || []).length;
+      return 'star-' + starCount;
+    }
 
     function rollItem() {
       const totalWeight = weights.reduce((a, b) => a + b, 0);
@@ -110,39 +140,43 @@
       return items[0];
     }
 
-    function getStarClass(item) {
-      if (item.startsWith("★ ")) return "star1";
-      if (item.startsWith("★★ ")) return "star2";
-      if (item.startsWith("★★★ ")) return "star3";
-      if (item.startsWith("★★★★ ")) return "star4";
-      if (item.startsWith("★★★★★ ")) return "star5";
-      return "";
-    }
-
-    function getStarKey(item) {
-      return item.split(' ')[0]; // "★", "★★" など
+    function setButtonsDisabled(state) {
+      document.getElementById('btn1').disabled = state;
+      document.getElementById('btn10').disabled = state;
+      document.getElementById('btn100').disabled = state;
     }
 
     function rollGacha(times) {
       const resultArea = document.getElementById('resultArea');
       const summaryArea = document.getElementById('summaryArea');
       resultArea.innerHTML = '';
-      summaryArea.innerHTML = '';
+      summaryArea.textContent = '';
+      setButtonsDisabled(true);
 
       const results = [];
-      const countMap = {}; // 出現数を記録
-
       for (let i = 0; i < times; i++) {
-        const item = rollItem();
-        results.push(item);
-        const key = getStarKey(item);
-        countMap[key] = (countMap[key] || 0) + 1;
+        results.push(rollItem());
       }
+
+      const countByItem = {};
 
       let i = 0;
       function showNext() {
         if (i >= results.length) {
-          showSummary();
+          // 集計表示
+          let summary = "【レア度内訳】\n";
+          Object.entries(countByItem)
+            .sort((a, b) => {
+              // ★の数で降順ソート
+              const aStar = (a[0].match(/★/g) || []).length;
+              const bStar = (b[0].match(/★/g) || []).length;
+              return bStar - aStar;
+            })
+            .forEach(([item, count]) => {
+              summary += `${item} : ${count}個\n`;
+            });
+          summaryArea.textContent = summary;
+          setButtonsDisabled(false);
           return;
         }
 
@@ -150,25 +184,16 @@
         const span = document.createElement('span');
         span.className = 'item ' + getStarClass(item);
         span.textContent = item;
-
         resultArea.appendChild(span);
 
-        if ((i + 1) % (20 * 10) === 0) {
-          const br = document.createElement('div');
-          br.style.width = '100%';
-          br.style.height = '10px';
-          resultArea.appendChild(br);
-        }
+        countByItem[item] = (countByItem[item] || 0) + 1;
+
+        setTimeout(() => {
+          span.classList.add('show');
+        }, 10);
 
         i++;
-        setTimeout(showNext, 50);
-      }
-
-      function showSummary() {
-        const lines = Object.entries(countMap)
-          .sort((a, b) => b[0].length - a[0].length) // ★★★★★が先に来るように
-          .map(([stars, count]) => `${stars}：${count}個`);
-        summaryArea.textContent = '【結果まとめ】\n' + lines.join('\n');
+        setTimeout(showNext, 40);
       }
 
       showNext();
