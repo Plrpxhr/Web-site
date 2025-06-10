@@ -24,7 +24,7 @@
       flex-wrap: wrap;
       justify-content: center;
       gap: 4px;
-      max-width: 800px;
+      max-width: 900px;
       margin-left: auto;
       margin-right: auto;
     }
@@ -33,8 +33,20 @@
       padding: 4px 8px;
       border-radius: 4px;
       margin: 2px;
-      opacity: 1;
-      transition: opacity 0.3s;
+      opacity: 0;
+      transform: scale(0.5) rotate(0deg);
+      animation: pop-in 0.3s ease-out forwards;
+    }
+
+    @keyframes pop-in {
+      0% {
+        opacity: 0;
+        transform: scale(0.5) rotate(20deg);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+      }
     }
 
     .star1 { color: #555; background: #eee; }
@@ -44,7 +56,7 @@
     .star5 {
       color: gold;
       background: #fff5cc;
-      animation: glow 1s infinite alternate;
+      animation: glow 1s infinite alternate, jump 0.5s ease-in-out infinite alternate;
       font-weight: bold;
       border: 2px solid gold;
     }
@@ -52,6 +64,17 @@
     @keyframes glow {
       0% { box-shadow: 0 0 5px gold; }
       100% { box-shadow: 0 0 20px gold; }
+    }
+
+    @keyframes jump {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-5px); }
+    }
+
+    .summary {
+      margin-top: 30px;
+      font-size: 20px;
+      white-space: pre-line;
     }
   </style>
 </head>
@@ -62,6 +85,7 @@
   <button onclick="rollGacha(100)">100連</button>
 
   <div class="result" id="resultArea"></div>
+  <div class="summary" id="summaryArea"></div>
 
   <script>
     const items = [
@@ -83,7 +107,7 @@
         if (rand < weights[i]) return items[i];
         rand -= weights[i];
       }
-      return items[0]; // fallback
+      return items[0];
     }
 
     function getStarClass(item) {
@@ -95,30 +119,39 @@
       return "";
     }
 
+    function getStarKey(item) {
+      return item.split(' ')[0]; // "★", "★★" など
+    }
+
     function rollGacha(times) {
       const resultArea = document.getElementById('resultArea');
-      resultArea.innerHTML = ''; // 結果をクリア
+      const summaryArea = document.getElementById('summaryArea');
+      resultArea.innerHTML = '';
+      summaryArea.innerHTML = '';
 
       const results = [];
+      const countMap = {}; // 出現数を記録
+
       for (let i = 0; i < times; i++) {
         const item = rollItem();
         results.push(item);
+        const key = getStarKey(item);
+        countMap[key] = (countMap[key] || 0) + 1;
       }
 
       let i = 0;
       function showNext() {
-        if (i >= results.length) return;
+        if (i >= results.length) {
+          showSummary();
+          return;
+        }
 
         const item = results[i];
         const span = document.createElement('span');
         span.className = 'item ' + getStarClass(item);
         span.textContent = item;
-        span.style.opacity = 0;
-        resultArea.appendChild(span);
 
-        setTimeout(() => {
-          span.style.opacity = 1;
-        }, 50);
+        resultArea.appendChild(span);
 
         if ((i + 1) % (20 * 10) === 0) {
           const br = document.createElement('div');
@@ -128,10 +161,17 @@
         }
 
         i++;
-        setTimeout(showNext, 50); // 次を表示
+        setTimeout(showNext, 50);
       }
 
-      showNext(); // 表示スタート
+      function showSummary() {
+        const lines = Object.entries(countMap)
+          .sort((a, b) => b[0].length - a[0].length) // ★★★★★が先に来るように
+          .map(([stars, count]) => `${stars}：${count}個`);
+        summaryArea.textContent = '【結果まとめ】\n' + lines.join('\n');
+      }
+
+      showNext();
     }
   </script>
 </body>
