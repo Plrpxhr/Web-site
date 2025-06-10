@@ -7,35 +7,52 @@
     body {
       font-family: sans-serif;
       text-align: center;
-      margin-top: 30px;
+      margin-top: 50px;
     }
+
     button {
-      padding: 15px 30px;
-      margin: 10px;
-      font-size: 20px;
+      padding: 10px 20px;
+      margin: 5px;
+      font-size: 16px;
       cursor: pointer;
     }
+
     .result {
-      margin-top: 30px;
+      margin-top: 20px;
+      font-size: 18px;
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 5px;
-      max-width: 1000px;
+      gap: 4px;
+      max-width: 800px;
       margin-left: auto;
       margin-right: auto;
     }
+
     .item {
-      font-size: 18px;
       padding: 4px 8px;
       border-radius: 4px;
-      white-space: nowrap;
+      margin: 2px;
+      opacity: 1;
+      transition: opacity 0.3s;
     }
-    .star1 { color: #999; }
-    .star2 { color: #2ecc71; }
-    .star3 { color: #3498db; }
-    .star4 { color: #9b59b6; }
-    .star5 { color: #e74c3c; }
+
+    .star1 { color: #555; background: #eee; }
+    .star2 { color: #1f8b4c; background: #d5f5e3; }
+    .star3 { color: #2980b9; background: #d6eaf8; }
+    .star4 { color: #8e44ad; background: #f5eef8; }
+    .star5 {
+      color: gold;
+      background: #fff5cc;
+      animation: glow 1s infinite alternate;
+      font-weight: bold;
+      border: 2px solid gold;
+    }
+
+    @keyframes glow {
+      0% { box-shadow: 0 0 5px gold; }
+      100% { box-shadow: 0 0 20px gold; }
+    }
   </style>
 </head>
 <body>
@@ -66,33 +83,55 @@
         if (rand < weights[i]) return items[i];
         rand -= weights[i];
       }
-      return items[0];
+      return items[0]; // fallback
     }
 
     function getStarClass(item) {
-      const stars = item.match(/★+/)[0].length;
-      return 'star' + stars;
+      if (item.startsWith("★ ")) return "star1";
+      if (item.startsWith("★★ ")) return "star2";
+      if (item.startsWith("★★★ ")) return "star3";
+      if (item.startsWith("★★★★ ")) return "star4";
+      if (item.startsWith("★★★★★ ")) return "star5";
+      return "";
     }
 
     function rollGacha(times) {
       const resultArea = document.getElementById('resultArea');
-      resultArea.innerHTML = ''; // clear previous
+      resultArea.innerHTML = ''; // 結果をクリア
 
+      const results = [];
       for (let i = 0; i < times; i++) {
         const item = rollItem();
+        results.push(item);
+      }
+
+      let i = 0;
+      function showNext() {
+        if (i >= results.length) return;
+
+        const item = results[i];
         const span = document.createElement('span');
         span.className = 'item ' + getStarClass(item);
         span.textContent = item;
+        span.style.opacity = 0;
         resultArea.appendChild(span);
 
-        // 改行: 10個縦に並んだら改行（横20列まで）
-        if ((i + 1) % (10 * 20) === 0) {
+        setTimeout(() => {
+          span.style.opacity = 1;
+        }, 50);
+
+        if ((i + 1) % (20 * 10) === 0) {
           const br = document.createElement('div');
           br.style.width = '100%';
           br.style.height = '10px';
           resultArea.appendChild(br);
         }
+
+        i++;
+        setTimeout(showNext, 50); // 次を表示
       }
+
+      showNext(); // 表示スタート
     }
   </script>
 </body>
