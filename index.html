@@ -1,54 +1,66 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebSite</title>
-    <link rel="icon" href="icon.png" type="image/png">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
-            margin: 0;
-            padding: 0;
-        }
-        header {
-            background-color: #ff00ff;
-            color: white;
-            text-align: center;
-            padding: 1rem;
-        }
-        section {
-            margin: 20px;
-        }
-        footer {
-            background-color: #333;
-            color: white;
-            text-align: center;
-            padding: 1rem;
-            position: fixed;
-            width: 100%;
-            bottom: 0;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>ガチャシステム</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 18px;
+      white-space: pre-line;
+    }
+  </style>
 </head>
 <body>
+  <h1>ガチャシステム</h1>
+  <button onclick="rollGacha(1)">単発</button>
+  <button onclick="rollGacha(10)">10連</button>
+  <button onclick="rollGacha(100)">100連</button>
 
-<header>
-    <h1>ようこそ！私のWebサイトへ</h1>
-</header>
+  <div class="result" id="resultArea"></div>
 
-<section>
-    <h2>今日は何しに来ましたか?</h2>
-    <p>ほへぇ〜</p>
-    <!-- クリックするとexample.comに飛ぶ -->
-    <a href="https://youtu.be/iu9FRFLotVk?si=ipzxu5KwzSJx0q0j" target="_blank">クリック</a>
-</section>
+  <script>
+    const items = [
+      "★ 猫",
+      "★ 犬",
+      "★★ 牛",
+      "★★ 豚",
+      "★★★ 鳥",
+      "★★★★ 人間",
+      "★★★★★ アホ"
+    ];
 
-<footer>
-    <p>&copy; 株式会社猿人</p>
-</footer>
+    // 排出率（レア度ごとに重みを持たせる）
+    const weights = [30, 30, 15, 15, 7, 2.8, 0.2];
 
+    function rollItem() {
+      const totalWeight = weights.reduce((a, b) => a + b, 0);
+      let rand = Math.random() * totalWeight;
+      for (let i = 0; i < items.length; i++) {
+        if (rand < weights[i]) return items[i];
+        rand -= weights[i];
+      }
+      return items[0]; // fallback
+    }
+
+    function rollGacha(times) {
+      let result = '';
+      for (let i = 0; i < times; i++) {
+        result += rollItem() + '\n';
+      }
+      document.getElementById('resultArea').textContent = result;
+    }
+  </script>
 </body>
 </html>
