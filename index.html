@@ -207,7 +207,7 @@
   <audio id="itemRevealSound" src="item_reveal.mp3" preload="auto"></audio>
   <audio id="rareItemSound" src="rare_item.mp3" preload="auto"></audio>
   <audio id="superRareItemSound" src="super_rare_item.mp3" preload="auto"></audio>
-  <audio id="ultimateItemSound" src="ultimate_item.mp3" preload="auto"></audio> <h1>ガチャシステム</h1>
+  <audio id="ultimateItemSound" src="ultimate_item.mp3" preload="auto"></audio> <h1>ガチャ 【V.2.00】</h1>
   <button id="btn1" onclick="rollGacha(1)">単発</button>
   <button id="btn10" onclick="rollGacha(10)">10連</button>
   <button id="btn100" onclick="rollGacha(100)">100連</button>
@@ -230,11 +230,12 @@
       "★★★★ 人間",   // 4つ星
       "★★★★★ 不死鳥",  // 5つ星
       "★★★★★★ ドラゴン", // 6つ星
-      "★★★★★★★ 神"     // 7つ星
+      "★★★★★★★ 神",     // 7つ星
+      "★★★★★★★ 豚テキ侍"     // 7つ星
     ];
 
     // 重みは合計100%
-    const weights = [30, 30, 15, 15, 6.9, 2.8, 0.24, 0.05, 0.01];
+    const weights = [30, 30, 15, 15, 6.9, 2.8, 0.24, 0.05, 0.01, 0.01];
 
     // 音声要素の取得
     const gachaStartSound = document.getElementById('gachaStartSound');
