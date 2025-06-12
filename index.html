@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>ガチャ 【V.2.00】</title>
+  <title>ガチャ 【V.2.01】</title>
   <style>
     body {
       font-family: sans-serif;
@@ -207,7 +207,7 @@
   <audio id="itemRevealSound" src="item_reveal.mp3" preload="auto"></audio>
   <audio id="rareItemSound" src="rare_item.mp3" preload="auto"></audio>
   <audio id="superRareItemSound" src="super_rare_item.mp3" preload="auto"></audio>
-  <audio id="ultimateItemSound" src="ultimate_item.mp3" preload="auto"></audio> <h1>ガチャ 【V.2.00】</h1>
+  <audio id="ultimateItemSound" src="ultimate_item.mp3" preload="auto"></audio> <h1>ガチャ 【V.2.01】</h1>
   <button id="btn1" onclick="rollGacha(1)">単発</button>
   <button id="btn10" onclick="rollGacha(10)">10連</button>
   <button id="btn100" onclick="rollGacha(100)">100連</button>
@@ -236,7 +236,7 @@
     ];
 
     // 重みは合計100%
-    const weights = [30, 30, 15, 15, 6.9, 2.8, 0.239, 0.025, 0.025, 0.01, 0.01];
+    const weights = [30, 30, 15, 15, 6.9, 2.8, 0.23, 0.025, 0.025, 0.01, 0.01];
 
     // 音声要素の取得
     const gachaStartSound = document.getElementById('gachaStartSound');
